@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title></title>
+    <style>
+        body{background:url('images/background.png');font-family: "Microsoft Yahei","微软雅黑";}
+        html,body,ul,li,p{padding: 0; margin:0;}
+        ul{list-style: none; }
+        .banner{width: 650px; height:400px;margin:100px auto; background: #fff; position: relative;overflow: hidden;}
+        .banner li{width: 650px; height: 400px;background-size: cover; color: #fff; position: absolute; transform-origin:left top; transition:all 1.5s;}
+        .banner li:nth-child(1){background-image: url("images/1.png");left: 0; top:0;}
+        .banner li:nth-child(2){background-image: url("images/2.png");left:40px; top:0;}
+        .banner li:nth-child(3){background-image: url("images/3.png");left: 80px; top:0;}
+        .banner li:nth-child(4){background-image: url("images/4.png");left: 120px; top:0;}
+
+        .banner li p{height: 40px; width: 400px; line-height: 40px; text-indent: 20px; background-color: #000;
+        transform:rotate(90deg); transform-origin: 20px 20px; position: absolute; z-index: 2; cursor: pointer; transition:text-indent 1s;}
+
+        /*.banner li.on{
+            transform-origin:left top;
+            transform:translateX(410px) rotate(-45deg);
+        }
+        */
+        .banner li.on p{text-indent: 40px;}
+
+
+    </style>
+</head>
+<body>
+    <div class="banner">
+        <ul>
+            <li index="0">
+                <p>Sample1</p>
+            </li>
+            <li index="1">
+                <p>Sample2</p>
+            </li>
+            <li index="2">
+                <p>Sample3</p>
+            </li>
+            <li  index="3">
+                <p>Sample4</p>
+            </li>
+        </ul>
+    </div>
+    <script src="js/jquery-1.8.3.min.js"></script>
+	<script src="js/selectivizr.js"></script>
+    <script>
+        $(function(){
+
+            $('.banner p').click(function(){
+                /*没有class=on 向右旋转*/
+                if(!$(this).parent().hasClass('on')){
+                    var index = $(this).parent().attr('index');
+                    $('.banner li').each(function(i){
+                        if(i > index || i==index){
+                            $(this).css({
+                                transform:'translateX(410px) rotate(-45deg)'
+                            });
+                            $(this).addClass('on');
+                        }
+                    });
+                }else{/*有class=on 复位*/
+                    var index = $(this).parent().attr('index');
+                    $('.banner li').each(function(i){
+                        if(i <= index && $(this).hasClass('on')){
+                            $(this).css({
+                                transform:'rotate(0deg) translateX(0px)'
+                            });
+                            $(this).removeClass('on');
+                        }
+                    });
+                }
+            });
+        });
+    </script>
+</body>
+</html>
