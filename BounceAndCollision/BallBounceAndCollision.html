@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<title>多球碰撞和反弹-无摩擦动量守恒</title>
+	<script>
+		window.addEventListener('load',eventWindowLoaded,false);
+		function eventWindowLoaded(){
+			canvasApp();
+		}
+		function canvasSupport(){
+			return !!document.createElement('canvas').getContext;
+		}
+		function canvasApp(){
+			if(!canvasSupport()){
+				return;
+			}
+			var numBalls = 100;
+			var balls = [];
+			var tempBall,tempX,tempY,tempSpeed,tempAngle,tempRadius,tempRadians,tempVelocityX,tempVelocityY;
+			
+			var theCanvas = document.getElementById('canvasOne');
+			var context = theCanvas.getContext('2d');
+			
+			for(var i = 0 ; i < numBalls; i ++){
+				//密度相同 质量相同 动量守恒
+				tempRadius = 6;
+				var placeOK = false;//防止绘制小球时重复
+				while(!placeOK){
+					tempX = tempRadius + Math.floor(Math.random()*(theCanvas.width - tempRadius*2));
+					tempY = tempRadius + Math.floor(Math.random()*(theCanvas.height- tempRadius*2));
+					tempSpeed = 1;
+					tempAngle = Math.floor(Math.random()*360);
+					tempRadians = tempAngle * Math.PI/180;
+					tempVelocityX = Math.cos(tempRadians) * tempSpeed;
+					tempVelocityY = Math.sin(tempRadians) * tempSpeed;
+
+					tempBall = {x:tempX,y:tempY,nextX:tempX,nextY:tempY,radius:tempRadius,speed:tempSpeed,angle:tempAngle,radians:tempRadians,velocityX:tempVelocityX,velocityY:tempVelocityY,mass:tempRadius};
+					placeOK = canStartHere(tempBall);
+				}
+				balls.push(tempBall);
+			}
+			//确保绘制的小球不会重叠
+			function canStartHere(ball){
+				var retval = true;
+				for(var i = 0; i < balls.length; i++){
+					if(hitTestCircle(ball,balls[i])){
+						retval = false;
+					}
+				}
+				return retval;
+			}
+			//判断是否发生碰撞
+			function hitTestCircle(ball1,ball2){
+				var retval = false;
+				var dx = ball1.nextX - ball2.nextX;
+				var dy = ball1.nextY - ball2.nextY;
+				var distance = dx*dx + dy*dy;
+				if(distance <= (ball1.radius+ball2.radius)*(ball1.radius+ball2.radius)){
+					retval = true;
+				}
+				return retval;
+			}
+			//渲染画布
+			function drawScreen(){
+				context.fillStyle = '#eee';
+				context.fillRect(0,0,theCanvas.width,theCanvas.height);
+				context.strokeRect(1,1,theCanvas.width-2,theCanvas.height-2);
+				context.fillStyle = '#000';
+				update();
+				testWalls();
+				collide();
+				render();
+			}
+			//每200s更新一下小球下一步坐标
+			function update(){
+				var ball;
+				for(var i=0; i < balls.length; i++){
+					ball = balls[i];
+					ball.nextX = (ball.x += ball.velocityX);
+					ball.nextY = (ball.y += ball.velocityY);
+				}
+			}
+			//检测是否撞墙
+			function testWalls(){
+				var ball;
+				for(var i = 0; i < balls.length; i++){
+					ball = balls[i];
+					if(ball.nextX+ball.radius > theCanvas.width){
+						ball.velocityX = -ball.velocityX;
+						ball.nextX = theCanvas.width - ball.radius;
+					}else if(ball.nextX - ball.radius < 0){
+						ball.velocityX = -ball.velocityX;
+						ball.nextX = ball.radius;
+					}else if(ball.nextY+ball.radius > theCanvas.height){
+						ball.velocityY = -ball.velocityY;
+						ball.nextY = theCanvas.height - ball.radius;
+					}else if(ball.nextY - ball.radius < 0){
+						ball.velocityY = -ball.velocityY;
+						ball.nextY = ball.radius;
+					}
+				}
+			}
+			//检测两个小球是否碰撞
+			function collide(){
+				var ball,testBall;
+				for(var i = 0; i > balls.length; i++){
+					ball = balls[i];
+					for(var j = i; j < balls.length; j++){
+						testBall = balls[j];
+						if(hitTestCircle(ball,testBall)){
+							collideBalls(ball,testBall);
+						}
+					}
+				}
+			}
+			//若碰撞，计算各自方向，计算出下一步坐标
+			function collideBalls(ball1,ball2){
+				var dx = ball1.nextX - ball2.nextX;
+				var dy = ball1.nextY - ball2.nextY;
+				var collisionAngle = Math.atan2(dy,dx);
+				var speed1 = Math.sqrt(ball1.velocityX*ball1.velocityX+ball1.velocityY*ball1.velocityY);
+				var speed2 = Math.sqrt(ball2.velocityX*ball2.velocityX+ball2.velocityY*ball2.velocityY);
+
+				var direction1 = Math.atan2(ball1.velocityY,ball1.velocityY);
+				var direction2 = Math.atan2(ball2.velocityY,ball2.velocityY);
+
+				var velocityX_1 = speed1 * Math.cos(direction1 - collisionAngle);
+				var velocityY_1 = speed1 * Math.sin(direction1 - collisionAngle);
+				var velocityX_2 = speed1 * Math.cos(direction2 - collisionAngle);
+				var velocityY_2 = speed1 * Math.sin(direction2 - collisionAngle);
+
+				var final_velocityX_1 = ((ball1.mass - ball2.mass) * velocityX_1 + (ball2.mass + ball2.mass) * velocityX_2)/(ball1.mass + ball2.mass);
+				var final_velocityX_2 = ((ball1.mass + ball1.mass) * velocityX_1 + (ball2.mass - ball1.mass) * velocityX_2)/(ball1.mass + ball2.mass);
+
+				var final_velocityY_1 = velocityY_1;
+				var final_velocityY_2 = velocityY_2;
+
+				ball1.velocityX = Math.cos(collisionAngle)*final_velocityX_1 + Math.cos(collisionAngle+Math.PI/2)*final_velocityY_1;
+				ball1.velocityY = Math.sin(collisionAngle)*final_velocityX_1 + Math.cos(collisionAngle+Math.PI/2)*final_velocityY_1;
+				ball2.velocityX = Math.cos(collisionAngle)*final_velocityX_2 + Math.cos(collisionAngle+Math.PI/2)*final_velocityY_2;
+				ball2.velocityY = Math.sin(collisionAngle)*final_velocityX_2 + Math.cos(collisionAngle+Math.PI/2)*final_velocityY_2;
+				
+				ball1.nextX = (ball1.nextX += ball1.velocityX);
+				ball1.nextY = (ball1.nextY += ball1.velocityY);
+				ball2.nextX = (ball2.nextX += ball2.velocityX);
+				ball2.nextY = (ball2.nextY += ball2.velocityY);
+			}
+
+			function render(){
+				var ball;
+				for(var i=0; i < balls.length; i++){
+					ball = balls[i];
+					ball.x = ball.nextX;
+					ball.y = ball.nextY;
+					
+					context.beginPath();
+					context.arc(ball.x,ball.y,ball.radius,0,Math.PI*2,true);
+					context.closePath();
+					context.fill();
+				}
+			}
+
+			function gameLoop(){
+				/* 时间=位移/速度 */ 
+				/* t=s/v 为小球不卡顿 速度均匀 这里时间小一点 重绘快一点 s也得小一点*/
+				window.setTimeout(gameLoop,30);
+				drawScreen();
+			}
+			gameLoop();
+
+		}
+	</script>
+</head>
+<body>
+	<div style="position:absolute;top:50px;left:50px;">
+		<canvas id="canvasOne" width="500" height="500">
+			该浏览器不支持canvas。
+		</canvas>
+	</div>
+</body>
+</html>

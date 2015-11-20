@@ -1,0 +1,100 @@
+<html>
+	<head>
+		<meta charset="utf-8" />
+		<style>
+			html{height:100%;}
+			body{
+				padding:0;
+				margin:0;
+				background:radial-gradient(#fff,#333);
+				height:100%;
+			}
+			.wrap{
+				position:absolute;
+				bottom:100px;
+				width:100px;
+			}
+			.red{
+				left:25%;
+			}
+			.yellow{
+				left:50%;
+			}
+			.black{
+				left:75%;
+			}
+			.shadow,.ball{position:absolute;left:0px;right:0px;margin:auto;border-radius:50%;}
+			.shadow{
+				width:75px;
+				height:25px;
+				background:#000;
+				animation:shadow 600ms cubic-bezier(0.165, 0.840, 0.440, 1.000) infinite alternate;
+				-webkit-animation:shadow 600ms cubic-bezier(0.165, 0.840, 0.440, 1.000) infinite alternate;
+			}
+			.ball{
+				width:60px;
+				height:60px;
+				font-size:16px;
+				text-align:center;
+				line-height:60px;
+				font-weight:bold;
+				bottom:40px;
+				animation:ball 600ms cubic-bezier(0.165,0.84,0.44,1.0) infinite alternate;
+				-webkit-animation:ball 600ms cubic-bezier(0.165,0.84,0.44,1.0) infinite alternate;
+			}
+			@keyframes ball{
+				0%{transform:translateY(0px);}
+				100%{transform:translateY(-150px);}
+			}
+			@-webkit-keyframes ball{
+				0%{transform:translateY(0px);}
+				100%{transform:translateY(-150px);}
+			}
+			@keyframes shadow{
+				0%{opacity:0.5;transform:scale(0.75);}
+				100%{opacity:0.1;transform:scale(1);}
+			}
+			@-webkit-keyframes shadow{
+				0%{opacity:0.5;transform:scale(0.75);}
+				100%{opacity:0.1;transform:scale(1);}
+			}
+			.red .ball{
+				background:radial-gradient(#f00,#ff0);
+				animation-delay:200ms;
+				-webkit-animation-delay:200ms;
+			}
+			.yellow .ball{
+				background:radial-gradient(#ff0,#f0f);
+				animation-delay:400ms;
+				-webkit-animation-delay:400ms;
+			}
+			.black .ball{
+				background:radial-gradient(#f00,#0ff);
+				-webkit-animation-delay:600ms;
+			}
+			.red .shadow{
+				-webkit-animation-delay:200ms;
+			}
+			.yellow .shadow{
+				-webkit-animation-delay:400ms;
+			}
+			.black .shadow{
+				-webkit-animation-delay:600ms;
+			}
+		</style>
+	</head>
+	<body>
+		<div class="wrap red">
+			<div class="shadow"></div>
+			<div class="ball">happy</div>
+		</div>
+		<div class="wrap yellow">
+			<div class="shadow"></div>
+			<div class="ball">new</div>
+		</div>
+		<div class="wrap black">
+			<div class="shadow"></div>
+			<div class="ball">year</div>
+		</div>
+	</body>
+</html>

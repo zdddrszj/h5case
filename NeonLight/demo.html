@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<title></title>
+	<script src="modernizr-custom.js"></script>
+	<script>
+		window.addEventListener('load',eventWindowLoaded,false);
+		function eventWindowLoaded(){
+			canvasApp();
+		}
+		function canvasSupport(){
+			return Modernizr.canvas;
+		}
+		function canvasApp(){
+			if(!canvasSupport()){
+				return;
+			}
+			var message = 'HTML5 Canvas';
+			var theCanvas = document.getElementById('canvasOne');
+			var context = theCanvas.getContext("2d");
+			var colorStops = new Array(
+				{color:'#f00',stopPercent:0},
+				{color:'#ff0',stopPercent:.125},
+				{color:'#0f0',stopPercent:.375},
+				{color:'#00f',stopPercent:.625},
+				{color:'#f0f',stopPercent:.875},
+				{color:'#f00',stopPercent:1}
+				);
+			function drawScreen(){
+				//背景
+				context.fillStyle = '#000';
+				context.fillRect(0,0,theCanvas.width,theCanvas.height);
+				//文本
+				context.font = '90px impact';
+				context.textAlign = 'center';
+				context.textBaseline = 'middle';
+
+				var metrics = context.measureText(message);
+				var textWidth = metrics.width;
+				var xPosition = theCanvas.width/2;
+				var yPosition = theCanvas.height/2;
+
+				var gradient = context.createLinearGradient(xPosition-textWidth/2,0,xPosition+textWidth/2,theCanvas.height);
+				for(var i = 0 ; i < colorStops.length; i++){
+					var tempColorStop = colorStops[i];
+					var tempColor = tempColorStop.color;
+					var tempStopPercent = tempColorStop.stopPercent;
+					gradient.addColorStop(tempStopPercent,tempColor);
+					tempStopPercent += .015;
+					if(tempStopPercent>1){
+						tempStopPercent = 0;
+					}
+					tempColorStop.stopPercent = tempStopPercent;
+					colorStops[i] = tempColorStop;
+				}
+				context.fillStyle = gradient;
+				context.fillText(message,xPosition,yPosition);
+
+			}
+
+			function gameLoop(){
+				drawScreen();
+				
+			}
+
+			window.setInterval(gameLoop,200);
+			
+		}
+	</script>
+</head>
+<body>
+	<div style="position:absolute;top:50px;left:50px;">
+		<canvas id="canvasOne" width="600" height="200">
+			该浏览器不支持canvas。
+		</canvas>
+	</div>
+</body>
+</html>

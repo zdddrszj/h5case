@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=0, minimum-scale=1.0, maximum-scale=1.0">
+    <title>dotAndLineAni</title>
+</head>
+<body>
+
+<style>
+    *{margin: 0; padding: 0; box-sizing: border-box;}
+    html, body {
+        width: 100%;
+        height: 100%;
+    }
+    body {
+        background: black;
+    }
+    #canvas {
+        position: absolute;
+        top: 0;
+        left: 0;
+    }
+</style>
+<canvas id="canvas"></canvas>
+<script type="text/javascript">
+    function Dot() {
+        this.canvas
+        this.ctx
+        this.x
+        this.y
+    }
+    Dot.prototype = {
+        init: function (canvas, x, y) {
+            this.canvas = canvas
+            this.ctx = this.canvas.getContext('2d')
+
+            this.x = x || Math.random() * this.canvas.width
+            this.y = y || Math.random() * this.canvas.height
+            // 0 - 8 之间的一个随机数
+            this.r = Math.random() * 4
+            this.vx = Math.random() * 2 - 1
+            this.vy = Math.random() * 2 - 1
+
+            this.ctx.beginPath()
+            this.ctx.arc(this.x, this.y, this.r, 0, 2 * Math.PI)
+            this.ctx.fillStyle = "rgba(255, 255, 255, .8)"
+            this.ctx.fill()
+            this.ctx.closePath()
+        },
+        // 更新点位置
+        update: function () {
+            this.x = this.x + this.vx
+            this.y = this.y + this.vy
+
+            // 点越界后调用init重新随机生成 因为点的个数固定，屏幕实时绘制，所以移出屏幕的点对象不用清除
+            if (this.x < 0 || this.x > this.canvas.width) {
+                this.init(this.canvas)
+            }
+            if (this.y < 0 || this.y > this.canvas.height) {
+                this.init(this.canvas);
+            }
+
+            this.ctx.beginPath()
+            this.ctx.arc(this.x, this.y, this.r, 0, 2 * Math.PI)
+            this.ctx.fillStyle = "rgba(255,255,255,.8)"
+            this.ctx.fill()
+            this.ctx.closePath()
+        },
+        followMouse: function (tx, ty) {
+            this.x = tx
+            this.y = ty
+            this.ctx.beginPath()
+            this.ctx.arc(this.x, this.y, this.r, 0, 2*Math.PI)
+            this.ctx.fillStyle = "rgba(255,0,0,.8)"
+            this.ctx.fill()
+            this.ctx.closePath()
+        }
+    }
+</script>
+<script type="text/javascript">
+    let dotsArr = [],
+        canvas = document.getElementById('canvas'),
+        ctx = canvas.getContext('2d'),
+        width = document.documentElement.offsetWidth || document.body.offsetWidth,
+        height = document.documentElement.offsetHeight || document.documentElement.offsetHeight,
+        dotsNum = parseInt(width * height / 8000),
+        dotsDistance = 100
+        maxDotsNum = dotsNum * 1.5
+        overDotsNum = 0
+
+    canvas.setAttribute('width', width)
+    canvas.setAttribute('height', height)
+
+    for (var i = 0; i < dotsNum; i ++) {
+        var dot = new Dot()
+        dot.id = i + 1
+        dotsArr.push(dot)
+        dot.init(canvas)
+    }
+
+    var requestAnimationFrame = requestAnimationFrame || webkitRequestAnimationFrame || oRequestAnimationFrame || msRequestAnimationFrame
+    requestAnimationFrame(updateCanvas)
+
+    function updateCanvas () {
+        // 清空画布
+        ctx.clearRect(0, 0, canvas.width, canvas.height)
+        // 点的个数为 dotsNum ~ dotsNum，即 0 ~ dotsNum 或者 (dotsNum - maxDotsNum) ~ dotsNum
+        if (dotsNum > maxDotsNum) {
+            overDotsNum = dotsNum - maxDotsNum
+        }
+        for (let j = overDotsNum; j < dotsNum; j ++) {
+            dotsArr[j].update()
+        }
+        // 画线
+        for (let m = overDotsNum; m < dotsNum; m ++) {
+            for (let n = m + 1; n < dotsNum; n ++) {
+                let dx = dotsArr[m].x - dotsArr[n].x
+                let dy = dotsArr[m].y - dotsArr[n].y
+                let d = Math.sqrt(Math.pow(dx, 2) + Math.pow(dy, 2))
+                if (d < dotsDistance) {
+                    ctx.beginPath()
+                    ctx.moveTo(dotsArr[m].x, dotsArr[m].y)
+                    ctx.lineTo(dotsArr[n].x, dotsArr[n].y)
+                    ctx.strokeStyle = 'rgba(255, 255, 255, ' + (dotsDistance - d) / dotsDistance + ')'
+                    ctx.strokeWidth = 1
+                    ctx.stroke()
+                    ctx.closePath()
+                }
+            }
+        }
+        requestAnimationFrame(updateCanvas)
+    }
+    // 鼠标点击事件
+    document.addEventListener('click', handleClick)
+    function handleClick (e) {
+        let x = e.pageX
+        let y = e.pageY
+        for (let j = 0; j < 5; j ++) {
+            dotsNum ++
+            var dot = new Dot()
+            dot.id = dotsNum
+            dotsArr.push(dot)
+            dot.init(canvas, x, y)
+        }
+    }
+    // 鼠标移动事件
+    document.addEventListener('mousemove', handleMousemove)
+    function handleMousemove (e) {
+        let x = e.pageX,
+            y = e.pageY
+        if ((x > 0 && x < width) && (y > 0 && y < height)) {
+            // dot为画布上最后画的最后一个点，鼠标跟随即更新最后这个点的位置坐标
+            dot.followMouse(x, y)
+        }
+    }
+</script>
+</body>
+</html>

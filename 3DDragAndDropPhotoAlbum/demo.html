@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html onselectstart="return false">
+<head lang="en">
+    <meta charset="UTF-8">
+    <title></title>
+    <style>
+        html,body,img{padding: 0; margin:0;}
+        body{background-color: #000;-moz-user-select: none;width: 100%;height: 100%;overflow: hidden;}
+        ul li{list-style: none; }
+
+        .pic{
+            width:120px;
+            height: 180px;
+            /*border:1px solid #f00;*/
+            margin: 150px auto 0;
+            transform-style:preserve-3d;
+            transform:perspective(800px) rotateX(-10deg);
+        }
+        .pic img{
+            position: absolute;
+            width:100%;
+            height: 100%;
+            border-radius:5px;
+            box-shadow:0px 0px 10px #fff;
+            -webkit-box-reflect:below 10px -webkit-linear-gradient(top,rgba(0,0,0,0) 50%,rgba(0,0,0,.5) 100%);
+			-moz-box-reflect:below 10px -webkit-linear-gradient(top,rgba(0,0,0,0) 50%,rgba(0,0,0,.5) 100%);
+        }
+
+        p{
+            width: 1200px;
+            height: 1200px;
+            background: -webkit-radial-gradient(center center,600px 600px,rgba(255,255,255,.5),rgba(0,0,0,.5));
+			background: -moz-radial-gradient(center center,600px 600px,rgba(255,255,255,.5),rgba(0,0,0,.5));
+            border-radius: 600px;
+            position: absolute;
+            left: 50%;
+            top:100%;
+            margin-left: -600px;
+            margin-top:-600px;
+            transform:rotateX(90deg);
+        }
+    </style>
+</head>
+<body>
+    <div class="pic">
+        <img src="images/1.jpg" alt=""/>
+        <img src="images/2.jpg" alt=""/>
+        <img src="images/3.jpg" alt=""/>
+        <img src="images/4.jpg" alt=""/>
+        <img src="images/5.jpg" alt=""/>
+        <img src="images/6.jpg" alt=""/>
+        <img src="images/7.jpg" alt=""/>
+        <img src="images/8.jpg" alt=""/>
+        <img src="images/9.jpg" alt=""/>
+        <img src="images/10.jpg" alt=""/>
+        <img src="images/11.jpg" alt=""/>
+        <p></p>
+    </div>
+    <script src="js/jquery-1.8.3.min.js"></script>
+	<script src="js/selectivizr.js"></script>
+    <script>
+        $(function(){
+
+            var imgL = $('.pic img').length;
+            /*每张图片旋转角度*/
+            var deg = 360/imgL;
+
+            $('.pic img').each(function(i){
+                $(this).css({
+                    transform:'rotateY('+i*deg+'deg) translateZ(350px)',
+                    transition:'1s '+i*0.05+'s'
+                });
+                /* 防止图片拖拽*/
+                $(this).attr('ondragstart','return false');
+            });
+
+            var xN = 0;
+            var yN = 0;
+            var roy = 0;
+            var rox = -10;
+            var play=null;
+            $(document).mousedown(function(e){
+                clearInterval(play)
+                var x_ = e.pageX;
+                var y_ = e.pageY;
+
+                /*鼠标移动*/
+                $(this).bind('mousemove',function(e){
+                    var x = e.pageX;
+                    var y = e.pageY;
+
+                     xN = x-x_;
+                     yN = y-y_;
+
+                    roy += xN*0.1;
+                    rox -= yN*0.1;
+                    /*$('body').append('<div style="width: 5px; height: 5px;' +
+                            ' background-color:red;position:absolute;top:'+y+'px;left:'+x+'px;"></div>');
+*/
+                     x_ = e.pageX;
+                     y_ = e.pageY;
+
+                    $('.pic').css({
+                        transform:'perspective(800px) rotateX('+rox+'deg) rotateY('+roy+'deg)'
+                    });
+
+                })
+            }).mouseup(function(){
+
+                /*解绑*/
+                $(this).unbind('mousemove');
+
+                play = setInterval(function () {
+                    xN *= 0.95;
+                    yN *= 0.95;
+                    if(Math.abs(xN)<1 && Math.abs(yN) <1){
+                        clearInterval(play);
+                    }
+                    roy += xN*0.1;
+                    rox -= yN*0.1;
+                    $('.pic').css({
+                        transform:'perspective(800px) rotateX('+rox+'deg) rotateY('+roy+'deg)'
+                    });
+                },30);
+            });
+        });
+    </script>
+</body>
+</html>

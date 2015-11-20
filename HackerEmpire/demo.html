@@ -1,0 +1,56 @@
+<!doctype html>
+<html>
+	<head>
+		<meta charset="utf-8" />
+	</head>
+	<body style="padding:0; margin:0;">
+		<canvas id="canvas"></canvas>
+		<script>
+			var canvas = document.getElementById("canvas");
+			var ctx = canvas.getContext("2d");
+			var w = canvas.width = window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth;
+			var h = canvas.height = window.innerHeight || document.documentElement.clientHeight || document.body.clientWidth;
+			//ctx.fillStyle = "#ff0066";
+			//ctx.fillText("黑色帝国",400,400);
+
+			var words = Array(64).join("1").split("");//生成一个数组来保存单词
+			function draw(){
+				ctx.fillStyle = "rgba(0,0,0,0.05)";
+				ctx.fillRect(0,0,w,h);//画矩形
+				ctx.fillStyle = color2();
+				var ft = 8 + Math.ceil(Math.random()*8);
+				ctx.font = ft + "px '黑体'";
+				words.map(function(y,n){//数组里面具体元素的一个映射
+					text = String.fromCharCode(65+Math.ceil(Math.random()*57));//随机产生一个机器码 65-122
+					x = n*30;
+					ctx.fillText(text,x,y);
+					words[n] = (y>758+Math.random()*322) ? 0 : y+20;//1080-758=322
+				})
+			}
+			//draw();
+			setInterval(draw,50);
+			//随机产生一个颜色值
+			function color1(){
+				var colors = [0,1,2,3,4,5,6,7,8,9,'a','b','c','d','e','f'];
+				var color = "";
+				for(var i = 0 ; i < 6 ; i++){
+					var n = Math.ceil(Math.random()*15);
+					color += ""+colors[n];
+				}
+				return "#"+color;
+			}
+			function color2(){
+				var color = Math.ceil(Math.random()*16777216).toString(16);
+				while(color.length<6){
+					color += "0"+color;
+				}
+				return "#"+color;
+			}
+			function color3(){
+				return "#"+(function(color){
+					return new Array(7-color.length).join("0")+color
+				})((Math.random() * 0x1000000 << 0).toString(16));
+			}
+		</script>
+	</body>
+</html>
