@@ -1,0 +1,8 @@
+title: H5case
+description: h5案例
+google_analytics: 
+show_downloads: true
+theme: jekyll-theme-cayman
+
+gems:
+  - jekyll-mentions
