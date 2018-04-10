@@ -86,7 +86,7 @@
         height = document.documentElement.offsetHeight || document.documentElement.offsetHeight,
         dotsNum = parseInt(width * height / 8000),
         dotsDistance = 100
-        maxDotsNum = dotsNum * 1.5
+        maxDotsNum = Math.floor(dotsNum * 1.5)
         overDotsNum = 0
 
     canvas.setAttribute('width', width)
